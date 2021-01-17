@@ -1,0 +1,49 @@
+{
+  "version":0,
+  "static-variable": {
+    "num-of-request":10,
+    "num-of-concurrent-request":3,
+    "basic-64-authorization": "Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=" # to generatese  echo -n "client:secret" | base64
+  },
+  "variables":[
+    {
+
+    }],
+  "requests":[
+     {
+       "method":"OAUTH2_LOGIN",
+       "url":"https://path.to/oauth/token",
+       #"url":"http://localhost:1080", #debug using "nc -l 1080"
+       "header": {
+         #"Content-Type":"application/json",
+         "Authorization": "Basic {{basic-64-authorization}}",
+         "cache-control":"no-cache"
+       },
+       "data": {
+         "username" : "{{username}}",
+         "password" : "{{password}}"
+       },
+       "expected_response_type":"json",
+       "extract":[ {
+         "datapath":"access_token",
+         "mapped-variable":"access_token",
+         "type":"string" // options: list, string, int
+       }],
+       "is_prerequisite": false
+     },
+     {
+       "method":"POST",
+       "url":"https://path.to/operation",
+       "header": {
+         "Content-Type":"application/json",
+         "Authorization": "Bearer {{access_token}}",
+         "cache-control":"no-cache"
+       },
+       "required":["access_token"],
+       "data": {
+         "data_key":"data_value"
+       },
+       "is_prerequisite": false
+     }
+   ]
+}

@@ -1,0 +1,64 @@
+{
+  "version":0,
+  "static-variable": {
+    "num-of-request":1, //50,
+    "num-of-concurrent-request":1, //10,
+    "authorizationToken":"dummy-a-very-long-oauth-string-token"
+  },
+  "variables":[
+    {  // useless variables, I will probably remove this later.
+      "names":["giftCaard"],
+      "values":[
+        [
+          "N0UBDVAHMGOW"
+        ]
+      ]
+    }],
+  "requests":[
+     {
+       "method":"POST",
+       "url":"http://localhost/test/dummy/data/checkout.json",
+       "header": {
+         "Content-Type":"application/json",
+         "Authorization": "Bearer {{authorizationToken}}",
+         "cache-control":"no-cache"
+       },
+       "data": {
+           "billingAddress": {
+               "firstname": "Narpati",
+               "lastname": "Edit ",
+               "street": [
+                   "jalan testing doank"
+               ],
+               "city": "JAKARTA BARAT/KEMBANGAN",
+               "region": "DKI JAKARTA",
+               "regionCode": "ID-JK",
+               "regionId": 517,
+               "countryId": "ID",
+               "telephone": "6255555555555",
+               "postcode": "11520"
+           },
+           "paymentMethod": "snap_banktransfer",
+           "latitude": null,
+           "longitude": null,
+           "token": null
+       },
+       "expected_response_type":"int",// options: json,int
+       "extract":[ {
+         "mapped-variable":"orderId",
+         "type":"int" // options: list, string, int
+       }
+       ]
+     },
+     {
+       "method":"POST",
+       "url":"http://localhost/test/dummy/data/200ok.json?{{orderId}}",
+       "header": {
+         "Content-Type":"application/json",
+         "Authorization": "Bearer {{authorizationToken}}",
+         "cache-control":"no-cache"
+       },
+       "required":["orderId"]
+     }
+   ]
+}

@@ -1,0 +1,86 @@
+{
+  "version":0,
+  "static-variable": {
+    "num-of-request":1, //50,
+    "num-of-concurrent-request":1, //10,
+    "basic-64-authorization": "Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=" //echo -n "client:secret" | base64
+  },
+  "variables":[
+    { //this will be ignored since it will get the variable from getGiftCards
+      "names":["giftCaard"],
+      "values":[
+        [
+          "N0UBDVAHMGOW"
+        ]
+      ]
+    }],
+  "requests":[
+     {
+       "method":"OAUTH2_LOGIN",
+       "url":"https://path.to/oauth/token",
+       "header": {
+         #"Content-Type":"application/json",
+         "Authorization": "Basic {{basic-64-authorization}}",
+         "cache-control":"no-cache"
+       },
+       "data": {
+         "username" : "{{username}}", // sampleuser: {"variables":[{ "names":["username","password"],"values":[["user1","password1"]]}]}
+         "password" : "{{password}}"
+       },
+       "expected_response_type":"json",
+       "extract":[ {
+         "datapath":"access_token",
+         "mapped-variable":"access_token",
+         "type":"string" // options: list, string, int
+       }],
+       "is_prerequisite": false
+     },
+     {
+       "method":"GET",
+       "url":"http://localhost/test/dummy/data/giftCards.json",
+       "header": {
+         "Content-Type":"application/json",
+         "Authorization": "Bearer {{authorizationToken}}",
+         "cache-control":"no-cache"
+       },
+       "expected_response_type":"json",// options: json,int
+       "extract":[ {
+         "datapath":"giftCards[0]",
+         "mapped-variable":"giftCard",
+         "type":"list" // options: list, string, int
+       }
+       ],
+       "is_prerequisite": false
+     },
+     {
+       "method":"POST",
+       "url":"http://localhost/test/dummy/data/giftCards.json",
+       "header": {
+         "Content-Type":"application/json",
+         "Authorization": "Bearer {{authorizationToken}}",
+         "cache-control":"no-cache"
+       },
+       "data": {
+         "giftCards" : "{{giftCard}}"
+       },
+       "required":["giftCard"]
+     },
+     {
+       "method":"POST",
+       "url":"http://localhost:1080/test/dummy/uploadPic/{{giftCard}}",
+       "header": {
+         #"Content-Type":"multipart/form-data;boundary=SOME_BOUNDARY",
+         "Authorization": "Bearer {{access_token}}",
+         "cache-control":"no-cache"
+       },
+       "files": [{
+         "field-name":"file",
+         "file-name":"si_buta_dari_gua_hantu_vs_sapujagat_by_kunderemp_dbr64fp-250t.jpg",
+         "content-type":"image/jpeg"
+       }],
+       "data":{},
+       "required":["access_token","giftCard"],
+       "is_prerequisite": false
+     }
+   ]
+}
